@@ -1,0 +1,8 @@
+main(){
+double x
+int x2
+2x str
+Int !x
+int x
+int 2x
+}
