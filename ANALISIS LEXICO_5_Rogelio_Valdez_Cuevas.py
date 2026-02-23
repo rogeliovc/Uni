@@ -55,6 +55,7 @@ class AnalizadorLexico:
         self.tokens_fijos = {
             '+': 'TKN OPADD', '-': 'TKN OPSUB', '*': 'TKN OPMULT', '/': 'TKN OPDIV',
             '(': 'TKN PAREN_A', ')': 'TKN PAREN_C', '[': 'TKN CORAPER', ']': 'TKN CORCIERRE',
+            '{': 'TKN LLAVE_A', '}': 'TKN LLAVE_C',
             '=': 'TKN ASIGN', '"': 'TKN COMILLA'
         }
         # Patrón regex para separar la expresion
@@ -86,7 +87,7 @@ class AnalizadorLexico:
             print(f"<{tipo}, {l}>")
             resultado.append(l)
         
-        print(f"\nTokens encontrados:{resultado}")
+        print(f"\nTokens encontrados:{resultado}", "\n")
     
     def procesar_archivo_tokens(self, ruta_archivo):
         resultados = []
@@ -135,28 +136,32 @@ class AnalizadorLexico:
         
         return f"{linea} // no identificado"
 
+    #Validación para (), [], {} 
+    def validar_apertura_cierres(self, entrada):
+        pila = []
+        pares = {')': '(', ']': '[', '}': '{'}
+        
+        for caracter in entrada:
+            if caracter in pares.values():
+                pila.append(caracter)
+            elif caracter in pares.keys():
+                if not pila or pila.pop() != pares[caracter]:
+                    return False
+        return len(pila) == 0
+
 if __name__ == "__main__":
-    contenido_prueba = """main(){
-double x
-int x2
-2x str
-Int !x
-int x
-int 2x
-double x2
-h
-}"""
-    
-    nombre_archivo_prueba = "entrada_tokens.txt"
-    with open(nombre_archivo_prueba, 'w') as f:
-        f.write(contenido_prueba)
     
     analizador = AnalizadorLexico()
-    resultados = analizador.procesar_archivo_tokens(nombre_archivo_prueba)
-    
-    print("Resultados del análisis:")
-    for resultado in resultados:
-        print(resultado)
 
-#prueba = AnalizadorLexico()
-#prueba.procesar('C:/Users/Ramiro/AppData/Local/Programs/Python/Python313/python.exe "c:/Users/Ramiro/Desktop/COMPILADORES ACTIVIDADES/act3_jasn.py"')
+    analizador.tokens_fijos['×'] = 'TKN OPMULT' 
+    
+    # Expresión de prueba
+    expresion_matematica = "{[(4*3+2]/5}" 
+
+        
+    analizador.procesar(expresion_matematica)
+
+    if analizador.validar_apertura_cierres(expresion_matematica):
+        print("Validación estructural: Los paréntesis, corchetes y llaves están balanceados correctamente.\n")
+    else:
+        print("Validación estructural: ERROR - Hay símbolos sin abrir o cerrar, o están cruzados.\n")
